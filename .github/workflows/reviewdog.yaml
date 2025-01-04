@@ -30,4 +30,3 @@ jobs:
           eslint_input: eslint-report.json
           fail_on_error: false
           filter_mode: nofilter
-          reviewdog_flags: '-filter-mode=nofilter'
