@@ -14,7 +14,7 @@ import Newsletter from '../../../containers/Newsletter';
 const Footer = () => {
   const infoLinks = [
     { id: 0, name: 'Get in Touch', to: '/contact' }
-    { id: 1, name: 'Partner with Us', to: '/sell' },
+    { id: 1, name: 'Partner with Us', to: '/sell' }
     { id: 2, name: 'Delivery Info', to: '/shipping' }
   ];
 
