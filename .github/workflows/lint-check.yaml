@@ -23,8 +23,11 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
-
-      # Step 4: Run linting
-      - name: Run linting
-        run: |
-          npm run lint || echo "Lint errors detected"
+      
+      # Step 4: Run linting and pipe output to Reviewdog
+      - name: Run ESLint with Reviewdog
+        uses: reviewdog/action-eslint@v2
+        with:
+          reporter: github-pr-review # Posts ESLint issues as comments on the PR
+          github_token: ${{ secrets.TOKEN }}
+          eslint_input: 'eslint .' # Run ESLint on all files
