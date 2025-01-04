@@ -28,5 +28,5 @@ jobs:
           reporter: github-pr-review
           level: error
           eslint_input: eslint-report.json
-          fail_on_error: false
           filter_mode: nofilter
+          reviewdog_flags: '-no-diff -fail-on-error=false'
