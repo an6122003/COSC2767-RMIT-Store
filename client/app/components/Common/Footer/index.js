@@ -65,7 +65,7 @@ const Footer = () => {
           </div>
         </div>
         <div className='footer-copyright'>
-          <span>© {new Date().getFullYear()} RMIT Store. All rights reserved. Edit 13</span>
+          <span>© {new Date().getFullYear()} RMIT Store. All rights reserved. Edit 14</span>
         </div>
         <ul className='footer-social-item'>
           <li>
