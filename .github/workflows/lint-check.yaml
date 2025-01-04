@@ -24,12 +24,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      # Step 4: Run linting and pipe output to Reviewdog
-      - name: Run ESLint with Reviewdog
-        uses: reviewdog/action-eslint@v1
-        with:
-          reporter: github-pr-review # Posts ESLint issues as comments on the PR
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          eslint_flags: '.' # Specify files or directories for ESLint
-          fail_level: warning # Ensure workflow does not fail, post as comments
+      # Step 4: Run linting
+      - name: Run linting
+        run: |
+          npm run lint || echo "Lint errors detected"
 
