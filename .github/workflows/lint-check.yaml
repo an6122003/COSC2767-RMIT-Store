@@ -30,4 +30,6 @@ jobs:
         with:
           reporter: github-pr-review # Posts ESLint issues as comments on the PR
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          eslint_flags: '.' # Specify files or directories for ESLint
+          fail_level: warning # Ensure workflow does not fail, post as comments
 
