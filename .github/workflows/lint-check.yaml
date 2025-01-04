@@ -30,4 +30,4 @@ jobs:
         with:
           reporter: github-pr-review # Posts ESLint issues as comments on the PR
           github_token: ${{ secrets.TOKEN }}
-          eslint_input: 'eslint .' # Run ESLint on all files
+          eslint_flags: "src/"
