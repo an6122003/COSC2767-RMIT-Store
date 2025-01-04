@@ -19,8 +19,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run ESLint
-        run: npx eslint . -f json -o eslint-report.json || true
+      - name: Run ESLint and Check for Syntax Errors
+        id: run-eslint
+        run: |
+          npx eslint . -f json -o eslint-report.json
+        continue-on-error: false # Fail the workflow if ESLint exits with a non-zero code
 
       - name: Run reviewdog
         uses: reviewdog/action-eslint@v1
@@ -28,6 +31,6 @@ jobs:
           reporter: github-pr-review
           level: error
           eslint_input: eslint-report.json
-          fail_on_error: false
+          fail_on_error: true # Fail if errors are reported
           filter_mode: added
           reviewdog_flags: '-filter-mode=nofilter'
