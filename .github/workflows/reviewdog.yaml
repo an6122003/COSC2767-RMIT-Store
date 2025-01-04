@@ -29,5 +29,5 @@ jobs:
           level: error
           eslint_input: eslint-report.json
           fail_on_error: false
-          filter_mode: added
+          filter_mode: nofilter
           reviewdog_flags: '-filter-mode=nofilter'
