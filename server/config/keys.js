@@ -6,7 +6,9 @@ module.exports = {
   },
   port: process.env.PORT || 3000, // Server port
   database: {
-    url: process.env.MONGO_URI // MongoDB connection URL
+    url: process.env.NODE_ENV === 'production' 
+      ? process.env.MONGO_URI_PROD // Use production URI in production
+      : process.env.MONGO_URI_DEV  // Use development URI otherwise
   },
   jwt: {
     secret: process.env.JWT_SECRET, // JWT secret key
