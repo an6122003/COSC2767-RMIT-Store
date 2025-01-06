@@ -40,7 +40,7 @@ pipeline {
         stage('Install Dependencies and MongoDB') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
+                    sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo yum update -y
                     sudo yum install -y docker
@@ -51,7 +51,7 @@ pipeline {
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     EOF
-                    '''
+                    """
                 }
             }
         }
@@ -59,7 +59,7 @@ pipeline {
         stage('Deploy and Seed MongoDB') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
+                    sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo docker pull an6122003/mern-server:latest
 
@@ -76,7 +76,7 @@ pipeline {
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
                         an6122003/mern-server:latest
                     EOF
-                    '''
+                    """
                 }
             }
         }
@@ -84,11 +84,11 @@ pipeline {
         stage('Health Check') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
+                    sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     curl -f http://localhost:3000/healthcheck || exit 1
                     EOF
-                    '''
+                    """
                 }
             }
         }
@@ -96,11 +96,11 @@ pipeline {
         stage('MongoDB Health Check') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
+                    sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
                     EOF
-                    '''
+                    """
                 }
             }
         }
