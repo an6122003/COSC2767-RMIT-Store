@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        STACK_NAME = "mern-deployment-stack"
+        STACK_NAME = "test-env-mern-deployment-stack"
         INSTANCE_IP = ""
     }
 
@@ -39,7 +39,7 @@ pipeline {
             }
         }
 
-        stage('Install Node.js and Dependencies') {
+        stage('Install Dependencies and MongoDB') {
             steps {
                 sshagent(['ssh-key-github-an6122003']) {
                     sh """
@@ -58,11 +58,40 @@ pipeline {
             }
         }
 
+        stage('Deploy and Seed MongoDB') {
+            steps {
+                sshagent(['ssh-key-github-an6122003']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    sudo docker pull an6122003/mern-server:latest
+                    
+                    # Run a temporary container to seed the database
+                    sudo docker run --rm \
+                        -e NODE_ENV=test \
+                        -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
+                        an6122003/mern-server:latest \
+                        npm --prefix ./server run seed:db admin@rmit.edu.vn mypassword
+
+                    # Run the application container
+                    sudo docker run -d --name mern-server -p 3000:3000 \
+                        -e NODE_ENV=test \
+                        -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
+                        an6122003/mern-server:latest
+                    EOF
+                    """
+                }
+            }
+        }
+
         stage('Health Check') {
             steps {
-                sh """
-                curl -f http://<INSTANCE_IP>:3000/healthcheck || exit 1
-                """
+                sshagent(['ssh-key-github-an6122003']) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    curl -f http://localhost:3000/healthcheck || exit 1
+                    EOF
+                    """
+                }
             }
         }
 
@@ -71,23 +100,6 @@ pipeline {
                 sh """
                 mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
                 """
-            }
-        }
-
-
-        stage('Deploy MERN Server') {
-            steps {
-                sshagent(['ssh-key-github-an6122003']) { 
-                    sh """
-                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
-                    sudo docker pull your-docker-repo/mern-server:latest
-                    sudo docker run -d --name mern-server -p 3000:3000 \
-                        -e NODE_ENV=test \
-                        -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
-                        your-docker-repo/mern-server:latest
-                    EOF
-                    """
-                }
             }
         }
     }

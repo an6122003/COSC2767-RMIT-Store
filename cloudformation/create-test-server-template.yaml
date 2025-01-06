@@ -1,13 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  MyEC2Instance:
+  TestEnvEC2Instance:
     Type: "AWS::EC2::Instance"
     Properties:
       InstanceType: "t2.micro"
       KeyName: "vockey" # The key used in the Jenkinsfile credential
       ImageId: "ami-0c02fb55956c7d316" # Amazon Linux 2 AMI
       SecurityGroupIds:
-        - !Ref test1-security-group
+        - !Ref TestEnvSecurityGroup
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -22,7 +22,7 @@ Resources:
           systemctl start mongod
           systemctl enable mongod
 
-  MySecurityGroup:
+  TestEnvSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
       GroupDescription: "Enable SSH and HTTP access"
@@ -34,6 +34,10 @@ Resources:
         - IpProtocol: "tcp"
           FromPort: "80"
           ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: "3000"
+          ToPort: "3000"
           CidrIp: "0.0.0.0/0"
 
 Outputs:
