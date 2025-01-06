@@ -10,6 +10,7 @@ pipeline {
         stage('Trigger CloudFormation') {
             steps {
                 script {
+                    // Deploy the CloudFormation stack
                     sh """
                     aws cloudformation deploy \
                         --stack-name ${STACK_NAME} \
@@ -23,6 +24,7 @@ pipeline {
         stage('Retrieve Instance IP') {
             steps {
                 script {
+                    // Retrieve the Public IP of the EC2 instance
                     INSTANCE_IP = sh(
                         script: """
                         aws cloudformation describe-stacks \
@@ -39,9 +41,9 @@ pipeline {
 
         stage('Install Dependencies and MongoDB') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh '''
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo yum update -y
                     sudo yum install -y docker
                     sudo service docker start
@@ -58,11 +60,11 @@ pipeline {
 
         stage('Deploy and Seed MongoDB') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh '''
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo docker pull an6122003/mern-server:latest
-
+                    
                     # Run a temporary container to seed the database
                     sudo docker run --rm \
                         -e NODE_ENV=test \
@@ -83,9 +85,9 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh '''
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     curl -f http://localhost:3000/healthcheck || exit 1
                     EOF
                     '''
@@ -95,11 +97,9 @@ pipeline {
 
         stage('MongoDB Health Check') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-github-an6122003', keyFileVariable: 'SSH_KEY')]) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh '''
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
-                    EOF
                     '''
                 }
             }
