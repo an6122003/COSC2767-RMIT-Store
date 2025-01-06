@@ -43,6 +43,6 @@ Resources:
 Outputs:
   PublicIP:
     Description: Public IP address of the EC2 instance
-    Value: !GetAtt MyEC2Instance.PublicIp
+    Value: !GetAtt TestEnvEC2Instance.PublicIp
 
 ### aws cloudformation create-stack --stack-name mern-deployment-stack --template-body file://create-test-server.yaml
