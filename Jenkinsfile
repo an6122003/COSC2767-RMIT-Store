@@ -41,7 +41,7 @@ pipeline {
 
         stage('Install Dependencies and MongoDB') {
             steps {
-                sshagent(['ssh-key-github-an6122003']) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh """
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo yum update -y
@@ -60,7 +60,7 @@ pipeline {
 
         stage('Deploy and Seed MongoDB') {
             steps {
-                sshagent(['ssh-key-github-an6122003']) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh """
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo docker pull an6122003/mern-server:latest
@@ -85,7 +85,7 @@ pipeline {
 
         stage('Health Check') {
             steps {
-                sshagent(['ssh-key-github-an6122003']) {
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
                     sh """
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     curl -f http://localhost:3000/healthcheck || exit 1
