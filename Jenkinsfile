@@ -42,7 +42,7 @@ pipeline {
         stage('Install Dependencies and MongoDB') {
             steps {
                 sshagent(credentials: ['ssh-key-github-an6122003']) {
-                    sh """
+                    sh '''
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo yum update -y
                     sudo yum install -y docker
@@ -53,7 +53,7 @@ pipeline {
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     EOF
-                    """
+                    '''
                 }
             }
         }
@@ -61,7 +61,7 @@ pipeline {
         stage('Deploy and Seed MongoDB') {
             steps {
                 sshagent(credentials: ['ssh-key-github-an6122003']) {
-                    sh """
+                    sh '''
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     sudo docker pull an6122003/mern-server:latest
                     
@@ -78,7 +78,7 @@ pipeline {
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
                         an6122003/mern-server:latest
                     EOF
-                    """
+                    '''
                 }
             }
         }
@@ -86,20 +86,22 @@ pipeline {
         stage('Health Check') {
             steps {
                 sshagent(credentials: ['ssh-key-github-an6122003']) {
-                    sh """
+                    sh '''
                     ssh -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     curl -f http://localhost:3000/healthcheck || exit 1
                     EOF
-                    """
+                    '''
                 }
             }
         }
 
         stage('MongoDB Health Check') {
             steps {
-                sh """
-                mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
-                """
+                sshagent(credentials: ['ssh-key-github-an6122003']) {
+                    sh '''
+                    mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
+                    '''
+                }
             }
         }
     }
