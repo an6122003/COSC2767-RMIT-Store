@@ -13,8 +13,8 @@ import Newsletter from '../../../containers/Newsletter';
 
 const Footer = () => {
   const infoLinks = [
-    { id: 0, name: 'Get in Touch', to: '/contact' },
-    { id: 1, name: 'Partner with Us', to: '/sell' },
+    { id: 0, name: 'Get in Touch', to: '/contact' }
+    { id: 1, name: 'Partner with Us', to: '/sell' }
     { id: 2, name: 'Delivery Info', to: '/shipping' }
   ];
 
@@ -65,7 +65,7 @@ const Footer = () => {
           </div>
         </div>
         <div className='footer-copyright'>
-          <span>© {new Date().getFullYear()} RMIT Store. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} RMIT Store. All rights reserved. Edit 18</span>
         </div>
         <ul className='footer-social-item'>
           <li>
