@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies and MongoDB') {
+        stage('Install Dependencies') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
@@ -59,16 +59,26 @@ pipeline {
 
                     # Verify npm installation
                     npm -v
+                    EOF
+                    """
+                }
+            }
+        }
 
+        stage('Install MongoDB') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
+                    sh """
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     # Add the MongoDB repository
-                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF
+                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF_MONGO
                     [mongodb-org-6.0]
                     name=MongoDB Repository
                     baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/6.0/x86_64/
                     gpgcheck=1
                     enabled=1
                     gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
-                    EOF
+                    EOF_MONGO
 
                     # Install and Start MongoDB 
                     sudo yum install -y mongodb-org
