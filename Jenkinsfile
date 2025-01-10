@@ -71,14 +71,14 @@ pipeline {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     # Add the MongoDB repository
-                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF_MONGO
+                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo << "
                     [mongodb-org-6.0]
                     name=MongoDB Repository
                     baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/6.0/x86_64/
                     gpgcheck=1
                     enabled=1
                     gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
-                    EOF_MONGO
+                    "
 
                     # Install and Start MongoDB 
                     sudo yum install -y mongodb-org
