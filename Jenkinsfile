@@ -56,9 +56,9 @@ pipeline {
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
 
                     # Load nvm in this session
-                    export NVM_DIR="\$HOME/.nvm"
-                    [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
-                    [ -s "\$NVM_DIR/bash_completion" ] && \\. "\$NVM_DIR/bash_completion"
+                    // export NVM_DIR="/home/ec2-user/.nvm"
+                    [ -s "/home/ec2-user/nvm.sh" ] && \\. "/home/ec2-user/nvm.sh"
+                    [ -s "/home/ec2-user/bash_completion" ] && \\. "/home/ec2-user/bash_completion"
 
                     # Install and use the latest LTS version of Node.js
                     nvm install --lts
