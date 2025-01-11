@@ -41,7 +41,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << 'EOF'
                     echo "Starting: Update system packages"
                     sudo yum update -y
                     echo "Complete: Update system packages"
@@ -55,9 +55,10 @@ pipeline {
                     # Install nvm
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
 
-                    # Load nvm
+                    # Load nvm in this session
                     export NVM_DIR="\$HOME/.nvm"
                     [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
+                    [ -s "\$NVM_DIR/bash_completion" ] && \\. "\$NVM_DIR/bash_completion"
 
                     # Install and use the latest LTS version of Node.js
                     nvm install --lts
@@ -65,7 +66,7 @@ pipeline {
                     echo "Complete: Install Node.js using nvm"
 
                     echo "Starting: Verify Node.js installation"
-                    node -e "console.log('Running Node.js ' + process.version)"
+                    node -v
                     echo "Complete: Verify Node.js installation"
 
                     echo "Starting: Verify npm installation"
@@ -78,6 +79,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Install MongoDB') {
