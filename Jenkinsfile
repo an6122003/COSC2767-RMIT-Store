@@ -54,7 +54,7 @@ pipeline {
                     echo "Starting: Install Node.js"
                     # Add NodeSource repository for the desired Node.js version
                     curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
-                    /home/ec2-user/.nvm/nvm.sh
+                    sudo /home/ec2-user/.nvm/nvm.sh
                     nvm install --lts
                     echo "Complete: Install Node.js"
 
