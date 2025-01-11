@@ -97,7 +97,9 @@ pipeline {
 
                     # Install and Start MongoDB 
                     sudo yum install -y mongodb-org
-                    sudo yum install mongodb-mongosh-shared-openssl3
+                    sudo yum remove -y mongodb-mongosh
+                    sudo yum install -y mongodb-mongosh-shared-openssl3
+                    sudo yum install -y mongodb-mongosh
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     mongod --version
