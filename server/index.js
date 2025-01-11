@@ -52,5 +52,9 @@ const server = app.listen(port, '0.0.0.0', () => {
   );
 });
 
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Initialize WebSocket server
 socket(server);
