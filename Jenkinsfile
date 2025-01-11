@@ -51,17 +51,16 @@ pipeline {
                     sudo service docker start
                     echo "Complete: Install Docker"
 
-                    echo "Starting: Install fnm"
-                    curl -fsSL https://fnm.vercel.app/install | bash
-                    echo "Complete: Install fnm"
-
-                    echo "Starting: Configure fnm"
-                    export PATH="\$HOME/.fnm:\$PATH"
-                    eval "\$(fnm env)"
-                    echo "Complete: Configure fnm"
+                    echo "Starting: Install nvm"
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+                    export NVM_DIR="\$HOME/.nvm"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
+                    [ -s "\$NVM_DIR/bash_completion" ] && \\. "\$NVM_DIR/bash_completion"
+                    echo "Complete: Install nvm"
 
                     echo "Starting: Install and use Node.js version 22"
-                    fnm use --install-if-missing 22
+                    nvm install 22
+                    nvm use 22
                     echo "Complete: Install and use Node.js version 22"
 
                     echo "Starting: Verify Node.js installation"
@@ -78,6 +77,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Install MongoDB') {
             steps {
