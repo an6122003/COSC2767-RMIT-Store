@@ -42,23 +42,37 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    echo "Starting: Update system packages"
                     sudo yum update -y
+                    echo "Complete: Update system packages"
+
+                    echo "Starting: Install Docker"
                     sudo yum install -y docker
                     sudo service docker start
-                    # Install fnm
+                    echo "Complete: Install Docker"
+
+                    echo "Starting: Install fnm"
                     curl -fsSL https://fnm.vercel.app/install | bash
+                    echo "Complete: Install fnm"
 
-                    # Activate fnm
-                    source ~/.bashrc
+                    echo "Starting: Configure fnm"
+                    export PATH="\$HOME/.fnm:\$PATH"
+                    eval "\$(fnm env)"
+                    echo "Complete: Configure fnm"
 
-                    # Install and use Node.js version 22
+                    echo "Starting: Install and use Node.js version 22"
                     fnm use --install-if-missing 22
+                    echo "Complete: Install and use Node.js version 22"
 
-                    # Verify Node.js installation
+                    echo "Starting: Verify Node.js installation"
                     node -v
+                    echo "Complete: Verify Node.js installation"
 
-                    # Verify npm installation
+                    echo "Starting: Verify npm installation"
                     npm -v
+                    echo "Complete: Verify npm installation"
+
+                    echo "Install Dependencies Successfully"
                     EOF
                     """
                 }
@@ -85,6 +99,7 @@ pipeline {
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     mongod --version
+                    echo "Install MongoDB Successfully"
                     EOF
                     """
                 }
@@ -110,6 +125,8 @@ pipeline {
                         -e NODE_ENV=test \
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
                         an6122003/mern-server:latest
+
+                    echo "Deploy and Seed MongoDB Successfully"
                     EOF
                     """
                 }
