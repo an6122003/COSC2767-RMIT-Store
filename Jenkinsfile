@@ -74,7 +74,6 @@ pipeline {
                     echo "Complete: Verify npm installation"
 
                     echo "Install Dependencies Successfully"
-                    'EOF'
                     """
                 }
             }
