@@ -41,7 +41,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << 'EOF'
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << "
                     echo "Starting: Update system packages"
                     sudo yum update -y
                     echo "Complete: Update system packages"
@@ -74,7 +74,7 @@ pipeline {
                     echo "Complete: Verify npm installation"
 
                     echo "Install Dependencies Successfully"
-EOF
+                    "
                     """
                 }
             }
@@ -103,7 +103,7 @@ EOF
                     sudo systemctl enable mongod
                     mongod --version
                     echo "Install MongoDB Successfully"
-EOF
+                    EOF
                     """
                 }
             }
@@ -130,7 +130,7 @@ EOF
                         an6122003/mern-server:latest
 
                     echo "Deploy and Seed MongoDB Successfully"
-EOF
+                    EOF
                     """
                 }
             }
