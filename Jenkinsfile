@@ -102,7 +102,6 @@ pipeline {
                     sudo systemctl enable mongod
                     mongod --version
                     echo "Install MongoDB Successfully"
-                    'EOF'
                     """
                 }
             }
