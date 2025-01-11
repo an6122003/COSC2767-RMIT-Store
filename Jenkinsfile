@@ -40,7 +40,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
+                    sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     echo "Starting: Update system packages"
                     sudo yum update -y
@@ -75,7 +75,7 @@ pipeline {
 
                     echo "Install Dependencies Successfully"
                     EOF
-                    '''
+                    """
                 }
             }
         }
