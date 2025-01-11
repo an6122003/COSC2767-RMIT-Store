@@ -51,18 +51,11 @@ pipeline {
                     sudo service docker start
                     echo "Complete: Install Docker"
 
-                    echo "Starting: Install nvm"
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
-                    export NVM_DIR="\$HOME/.nvm"
-                    [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
-                    [ -s "\$NVM_DIR/bash_completion" ] && \\. "\$NVM_DIR/bash_completion"
-                    echo "Complete: Install nvm"
-
-                    echo "Starting: Install and use Node.js version 22"
-                    . "\$NVM_DIR/nvm.sh"  # Explicitly source nvm
-                    nvm install 22
-                    nvm use 22
-                    echo "Complete: Install and use Node.js version 22"
+                    echo "Starting: Install Node.js"
+                    # Add NodeSource repository for the desired Node.js version
+                    curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+                    sudo yum install -y nodejs
+                    echo "Complete: Install Node.js"
 
                     echo "Starting: Verify Node.js installation"
                     node -v
@@ -78,6 +71,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
