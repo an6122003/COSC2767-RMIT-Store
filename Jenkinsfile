@@ -97,6 +97,7 @@ pipeline {
 
                     # Install and Start MongoDB 
                     sudo yum install -y mongodb-org
+                    sudo yum install mongodb-mongosh-shared-openssl3
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     mongod --version
@@ -160,7 +161,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
-                    mongo --eval 'db.runCommand({ ping: 1 })' || exit 1
+                    mongosh --eval 'db.runCommand({ ping: 1 })' || (echo 'MongoDB ping failed' && exit 1)
                     "
                     """
                 }
