@@ -40,8 +40,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
-                    sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << _EOF_
+                    sh '''
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
                     echo "Starting: Update system packages"
                     sudo yum update -y
                     echo "Complete: Update system packages"
@@ -56,7 +56,7 @@ pipeline {
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
 
                     # Load nvm in this session
-                    // export NVM_DIR="/home/ec2-user/.nvm"
+                    export NVM_DIR="/home/ec2-user/.nvm"
                     [ -s "/home/ec2-user/nvm.sh" ] && \\. "/home/ec2-user/nvm.sh"
                     [ -s "/home/ec2-user/bash_completion" ] && \\. "/home/ec2-user/bash_completion"
 
@@ -74,8 +74,8 @@ pipeline {
                     echo "Complete: Verify npm installation"
 
                     echo "Install Dependencies Successfully"
-                    _EOF_
-                    """
+                    EOF
+                    '''
                 }
             }
         }
