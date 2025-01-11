@@ -86,9 +86,9 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << 'REMOTE_SCRIPT'
                     # Add the MongoDB repository
-                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo <<'EOF'
+                    sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo <<EOF
         [mongodb-org-6.0]
         name=MongoDB Repository
         baseurl=https://repo.mongodb.org/yum/amazon/2023/mongodb-org/6.0/x86_64/
@@ -97,13 +97,13 @@ pipeline {
         gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
         EOF
 
-                    # Install and Start MongoDB 
+                    # Install and Start MongoDB
                     sudo yum install -y mongodb-org
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     mongod --version
-                    echo 'Install MongoDB Successfully'
-                    "
+                    echo "Install MongoDB Successfully"
+        REMOTE_SCRIPT
                     """
                 }
             }
