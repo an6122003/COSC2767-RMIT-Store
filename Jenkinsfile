@@ -120,7 +120,7 @@ pipeline {
                         -e NODE_ENV=test \
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
                         an6122003/mern-server:latest \
-                        npm --prefix ./server run seed:db admin@rmit.edu.vn mypassword
+                        npm run seed:db admin@rmit.edu.vn mypassword
 
                     # Run the application container
                     sudo docker run -d --name mern-server -p 3000:3000 \

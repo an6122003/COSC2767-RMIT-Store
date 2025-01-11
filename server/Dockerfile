@@ -1,17 +1,18 @@
 # Use an official Node.js runtime as the base image
+# Use an official Node.js runtime as the base image
 FROM node:17
 
 # Set the working directory in the container
-WORKDIR /app/server
+WORKDIR /app
 
-# Copy the server-specific package.json and package-lock.json
-COPY server/package.json server/package-lock.json ./
+# Copy package.json and package-lock.json into the working directory
+COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the server code to the working directory
-COPY server/ ./
+COPY . .
 
 # Expose the port the server listens on (e.g., 5000)
 EXPOSE 3000
