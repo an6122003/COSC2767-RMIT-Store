@@ -59,6 +59,7 @@ pipeline {
                     echo "Complete: Install nvm"
 
                     echo "Starting: Install and use Node.js version 22"
+                    . "\$NVM_DIR/nvm.sh"  # Explicitly source nvm
                     nvm install 22
                     nvm use 22
                     echo "Complete: Install and use Node.js version 22"
@@ -77,6 +78,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Install MongoDB') {
