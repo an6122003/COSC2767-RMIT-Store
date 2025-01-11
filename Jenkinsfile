@@ -53,12 +53,13 @@ pipeline {
 
                     echo "Starting: Install Node.js"
                     # Add NodeSource repository for the desired Node.js version
-                    curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
-                    sudo yum install -y nodejs
+                    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
+                    . ~/.nvm/nvm.sh
+                    nvm install --lts
                     echo "Complete: Install Node.js"
 
                     echo "Starting: Verify Node.js installation"
-                    node -v
+                    node -e "console.log('Running Node.js ' + process.version)"
                     echo "Complete: Verify Node.js installation"
 
                     echo "Starting: Verify npm installation"
