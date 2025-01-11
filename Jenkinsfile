@@ -103,7 +103,7 @@ EOF
                     sudo systemctl enable mongod
                     mongod --version
                     echo "Install MongoDB Successfully"
-                    EOF
+EOF
                     """
                 }
             }
@@ -130,7 +130,7 @@ EOF
                         an6122003/mern-server:latest
 
                     echo "Deploy and Seed MongoDB Successfully"
-                    EOF
+EOF
                     """
                 }
             }
