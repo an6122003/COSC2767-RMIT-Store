@@ -115,6 +115,11 @@ pipeline {
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
                     sudo docker pull an6122003/mern-server:latest
                     echo "Image pulled successfully"
+
+                    # Stop and remove any existing container named mern-server
+                    sudo docker stop mern-server || true
+                    sudo docker rm mern-server || true
+
                     # Run a temporary container to seed the database
                     sudo docker run --rm \
                         -e NODE_ENV=test \
