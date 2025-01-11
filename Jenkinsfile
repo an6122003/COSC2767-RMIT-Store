@@ -145,7 +145,10 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
-                    curl -f http://localhost:3000/healthcheck || exit 1
+                    echo 'Waiting for the server to be ready...'
+                    sleep 10
+                    echo 'Testing healthcheck endpoint'
+                    curl -v -kf http://localhost:3000/healthcheck || (echo 'Healthcheck failed' && exit 1)
                     "
                     """
                 }
