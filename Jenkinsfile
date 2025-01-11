@@ -51,12 +51,18 @@ pipeline {
                     sudo service docker start
                     echo "Complete: Install Docker"
 
-                    echo "Starting: Install Node.js"
-                    # Add NodeSource repository for the desired Node.js version
-                    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.0/install.sh | bash
-                    sudo /home/ec2-user/.nvm/nvm.sh
+                    echo "Starting: Install Node.js using nvm"
+                    # Install nvm
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+
+                    # Load nvm
+                    export NVM_DIR="\$HOME/.nvm"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
+
+                    # Install and use the latest LTS version of Node.js
                     nvm install --lts
-                    echo "Complete: Install Node.js"
+                    nvm use --lts
+                    echo "Complete: Install Node.js using nvm"
 
                     echo "Starting: Verify Node.js installation"
                     node -e "console.log('Running Node.js ' + process.version)"
@@ -72,8 +78,6 @@ pipeline {
                 }
             }
         }
-
-
 
 
         stage('Install MongoDB') {
