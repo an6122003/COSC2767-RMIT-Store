@@ -112,9 +112,9 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
                     sudo docker pull an6122003/mern-server:latest
-
+                    echo "Image pulled successfully"
                     # Run a temporary container to seed the database
                     sudo docker run --rm \
                         -e NODE_ENV=test \
@@ -129,7 +129,7 @@ pipeline {
                         an6122003/mern-server:latest
 
                     echo "Deploy and Seed MongoDB Successfully"
-                    EOF
+                    "
                     """
                 }
             }
