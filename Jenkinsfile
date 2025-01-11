@@ -86,7 +86,7 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
-                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << EOF
+                    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} << 'EOF'
                     # Add the MongoDB repository
                     sudo tee /etc/yum.repos.d/mongodb-org-6.0.repo << "
                     [mongodb-org-6.0]
@@ -103,7 +103,7 @@ pipeline {
                     sudo systemctl enable mongod
                     mongod --version
                     echo "Install MongoDB Successfully"
-                    EOF
+                    'EOF'
                     """
                 }
             }
