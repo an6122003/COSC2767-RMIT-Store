@@ -1,0 +1,38 @@
+name: Jenkins CI BE
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'server/**'
+  workflow_dispatch:
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Jenkins CI BE
+        id: trigger
+        run: |
+          JENKINS_URL="http://44.221.254.127:8080"
+          JOB_NAME="TestJob"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
+          BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
+          STATUS="IN_PROGRESS"
+
+          while [ "$STATUS" != "SUCCESS" ] && [ "$STATUS" != "FAILURE" ]; do
+            echo "Checking Jenkins job status..."
+            sleep 10
+            STATUS=$(curl -s --user $USER:$API_TOKEN $BUILD_URL | jq -r '.result')
+            echo "Current status: $STATUS"
+          done
+
+          if [ "$STATUS" == "SUCCESS" ]; then
+            echo "Jenkins job completed successfully!"
+          else
+            echo "Jenkins job failed. Exiting with error."
+            exit 1
+          fi
