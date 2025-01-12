@@ -36,28 +36,43 @@ jobs:
 
           echo "QUEUE_URL=${QUEUE_URL}"
 
-      - name: Wait Jenkins CI BE
+      - name: Wait for Jenkins Job
         id: wait
         run: |
-          # Define variables
-          JENKINS_URL="http://18.208.165.173:8080"
-          JOB_NAME="ASM2-Pipeline"
-          USER="${{ secrets.JENKINS_USER }}"
-          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
-          BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
+          JENKINS_URL="https://your-jenkins-url"
+          JENKINS_USER="your-jenkins-user"
+          JENKINS_API_TOKEN="your-jenkins-api-token"
+          BUILD_STATUS=""
+          TIMEOUT=600 # 10 minutes
+          INTERVAL=15 # 15 seconds
 
-          # Monitor Jenkins job status
-          STATUS="IN_PROGRESS"
-          while [ "$STATUS" != "SUCCESS" ] && [ "$STATUS" != "FAILURE" ]; do
-            echo "Checking Jenkins job status..."
-            sleep 10
-            STATUS=$(curl -s --user $USER:$API_TOKEN $BUILD_URL | jq -r '.result')
-            echo "Current status: $STATUS"
+          # Extract the build number
+          QUEUE_ITEM=$(basename "$QUEUE_URL")
+          echo "Queue item: $QUEUE_ITEM"
+
+          # Wait for the job to start
+          until [ "$BUILD_NUMBER" ]; do
+            sleep "$INTERVAL"
+            BUILD_NUMBER=$(curl -s "${JENKINS_URL}/queue/item/${QUEUE_ITEM}/api/json" \
+              --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" | jq -r '.executable.number // empty')
+          done
+          echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
+
+          # Check build status
+          echo "Waiting for job to complete..."
+          while [ "$BUILD_STATUS" != "SUCCESS" ] && [ "$BUILD_STATUS" != "FAILURE" ] && [ $TIMEOUT -gt 0 ]; do
+            sleep "$INTERVAL"
+            TIMEOUT=$((TIMEOUT - INTERVAL))
+            BUILD_STATUS=$(curl -s "${JENKINS_URL}/job/${JOB_NAME}/${BUILD_NUMBER}/api/json" \
+              --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" | jq -r '.result // empty')
           done
 
-          if [ "$STATUS" == "SUCCESS" ]; then
-            echo "Jenkins job completed successfully!"
+          if [ "$BUILD_STATUS" = "SUCCESS" ]; then
+            echo "Jenkins job succeeded!"
+          elif [ "$BUILD_STATUS" = "FAILURE" ]; then
+            echo "Jenkins job failed!" >&2
+            exit 1
           else
-            echo "Jenkins job failed. Exiting with error."
+            echo "Timeout waiting for Jenkins job!" >&2
             exit 1
           fi
