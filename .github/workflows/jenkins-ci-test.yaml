@@ -19,8 +19,8 @@ jobs:
           # Trigger Jenkins job
           JOB_NAME="ASM2-Pipeline"
           JENKINS_URL="http://18.208.165.173:8080/"
-          JENKINS_USER="root"
-          JENKINS_API_TOKEN="asm2"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
 
           # Trigger the Jenkins job and get queue URL
           QUEUE_URL=$(curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
@@ -38,8 +38,8 @@ jobs:
         run: |
           JENKINS_URL="http://18.208.165.173:8080"
           JOB_NAME="ASM2-Pipeline"
-          JENKINS_USER="root"
-          JENKINS_API_TOKEN="asm2"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
           USER="${JENKINS_USER}"
           API_TOKEN="${JENKINS_API_TOKEN}"
           BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
