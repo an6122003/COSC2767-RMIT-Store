@@ -20,6 +20,15 @@ pipeline {
             }
         }
 
+        stage('Wait for Instance') {
+            steps {
+                script {
+                    echo "Waiting for 1 minute to ensure the server is ready..."
+                    sh "sleep 60" 
+                }
+            }
+        }
+
         stage('Retrieve Instance IP') {
             steps {
                 script {
@@ -97,12 +106,12 @@ pipeline {
 
                     # Install and Start MongoDB 
                     sudo yum install -y mongodb-org
-                    sudo yum remove -y mongodb-mongosh
-                    sudo yum install -y mongodb-mongosh-shared-openssl3
-                    sudo yum install -y mongodb-mongosh
                     sudo systemctl start mongod
                     sudo systemctl enable mongod
                     mongod --version
+                    sudo yum remove -y mongodb-mongosh
+                    sudo yum install -y mongodb-mongosh-shared-openssl3
+                    sudo yum install -y mongodb-mongosh
                     echo 'Install MongoDB Successfully'
                     "
                     """
