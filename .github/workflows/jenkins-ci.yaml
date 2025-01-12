@@ -16,59 +16,45 @@ jobs:
       - name: Trigger Jenkins Job
         id: trigger
         run: |
-          # Trigger Jenkins job
+          # Define variables
           JOB_NAME="ASM2-Pipeline"
-          JENKINS_URL="http://18.208.165.173:8080/"
-          JENKINS_USER="root"
-          JENKINS_API_TOKEN="asm2"
+          JENKINS_URL="${{ secrets.JENKINS_URL }}"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
 
-          # Trigger the Jenkins job and get queue URL
-          QUEUE_URL=$(curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
-            --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
+          # Get Jenkins Crumb
+          CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
+
+          # Trigger Jenkins job and get queue URL
+          curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/build" \
+            --user "${USER}:${API_TOKEN}" \
+            -H "Jenkins-Crumb:${CRUMB}" \
             -H "Content-Type: application/json" \
             --data-urlencode "pr_number=${{ github.event.pull_request.number }}" \
             --data-urlencode "pr_branch=${{ github.head_ref }}" \
-            --write-out "%{redirect_url}")
+            --write-out "%{redirect_url}"
 
-          echo "QUEUE_URL=${QUEUE_URL}" >> $GITHUB_ENV
-
+      # Step 5: Wait for Jenkins Job to Complete
       - name: Wait for Jenkins Job
-        id: wait
+        id: wait_jenkins
         run: |
-          JENKINS_URL="https://your-jenkins-url"
-          JENKINS_USER="your-jenkins-user"
-          JENKINS_API_TOKEN="your-jenkins-api-token"
-          BUILD_STATUS=""
-          TIMEOUT=600 # 10 minutes
-          INTERVAL=15 # 15 seconds
+          JOB_NAME="ASM2-Pipeline"
+          JENKINS_URL="${{ secrets.JENKINS_URL }}"
+          USER="${{ secrets.JENKINS_USER }}"
+          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
+          BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
+          STATUS="IN_PROGRESS"
 
-          # Extract the build number
-          QUEUE_ITEM=$(basename "$QUEUE_URL")
-          echo "Queue item: $QUEUE_ITEM"
-
-          # Wait for the job to start
-          until [ "$BUILD_NUMBER" ]; do
-            sleep "$INTERVAL"
-            BUILD_NUMBER=$(curl -s "${JENKINS_URL}/queue/item/${QUEUE_ITEM}/api/json" \
-              --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" | jq -r '.executable.number // empty')
-          done
-          echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $GITHUB_ENV
-
-          # Check build status
-          echo "Waiting for job to complete..."
-          while [ "$BUILD_STATUS" != "SUCCESS" ] && [ "$BUILD_STATUS" != "FAILURE" ] && [ $TIMEOUT -gt 0 ]; do
-            sleep "$INTERVAL"
-            TIMEOUT=$((TIMEOUT - INTERVAL))
-            BUILD_STATUS=$(curl -s "${JENKINS_URL}/job/${JOB_NAME}/${BUILD_NUMBER}/api/json" \
-              --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" | jq -r '.result // empty')
+          while [ "$STATUS" != "SUCCESS" ] && [ "$STATUS" != "FAILURE" ]; do
+            echo "Checking Jenkins job status..."
+            sleep 10
+            STATUS=$(curl -s --user $USER:$API_TOKEN $BUILD_URL | jq -r '.result')
+            echo "Current status: $STATUS"
           done
 
-          if [ "$BUILD_STATUS" = "SUCCESS" ]; then
-            echo "Jenkins job succeeded!"
-          elif [ "$BUILD_STATUS" = "FAILURE" ]; then
-            echo "Jenkins job failed!" >&2
-            exit 1
+          if [ "$STATUS" == "SUCCESS" ]; then
+            echo "Jenkins job completed successfully!"
           else
-            echo "Timeout waiting for Jenkins job!" >&2
+            echo "Jenkins job failed. Exiting with error."
             exit 1
           fi
