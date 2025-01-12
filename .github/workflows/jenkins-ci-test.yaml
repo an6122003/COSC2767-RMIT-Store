@@ -24,8 +24,12 @@ jobs:
 
           # Get Jenkins Crumb
           CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
+          if [ -z "$CRUMB" ]; then
+            echo "Failed to fetch Jenkins Crumb." >&2
+            exit 1
+          fi
 
-          # Trigger Jenkins job and get queue item
+          # Trigger Jenkins job and get queue URL
           QUEUE_URL=$(curl -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
             --user "${USER}:${API_TOKEN}" \
             -H "Jenkins-Crumb:${CRUMB}" \
@@ -33,22 +37,23 @@ jobs:
             --data-urlencode "pr_number=${{ github.event.pull_request.number }}" \
             --data-urlencode "pr_branch=${{ github.head_ref }}" \
             --write-out "%{redirect_url}")
-
-          echo "QUEUE_URL=${QUEUE_URL}" >> $GITHUB_ENV
+          if [ -z "$QUEUE_URL" ]; then
+            echo "Failed to trigger Jenkins job." >&2
+            exit 1
+          fi
 
       - name: Wait for Jenkins Job Result
         id: wait
         run: |
-          # Wait logic
+          # Define variables
           JENKINS_URL="${{ secrets.JENKINS_URL }}"
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
           TIMEOUT=600  # 10 minutes
           INTERVAL=15  # Check every 15 seconds
 
-          BUILD_STATUS=""
+          # Extract job URL
           BUILD_URL=""
-
           echo "Waiting for Jenkins job to start..."
           until [ "$BUILD_URL" ]; do
             sleep "$INTERVAL"
@@ -64,6 +69,8 @@ jobs:
 
           echo "Job started: $BUILD_URL"
 
+          # Wait for job to complete
+          BUILD_STATUS=""
           echo "Waiting for job to complete..."
           until [ "$BUILD_STATUS" ]; do
             sleep "$INTERVAL"
