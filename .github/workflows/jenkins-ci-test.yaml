@@ -13,13 +13,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Jenkins CI BE
+      - name: Trigger Jenkins Job
         id: trigger
         run: |
-          JENKINS_URL="http://44.221.254.127:8080"
-          JOB_NAME="TestJob"
-          USER="${{ secrets.JENKINS_USER }}"
-          API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
+          # Trigger Jenkins job
+          JOB_NAME="ASM2-Pipeline"
+          JENKINS_URL="http://18.208.165.173:8080/"
+          JENKINS_USER="root"
+          JENKINS_API_TOKEN="asm2"
+
+          # Trigger the Jenkins job and get queue URL
+          QUEUE_URL=$(curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
+            --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data-urlencode "pr_number=${{ github.event.pull_request.number }}" \
+            --data-urlencode "pr_branch=${{ github.head_ref }}" \
+            --write-out "%{redirect_url}")
+
+          echo "QUEUE_URL=${QUEUE_URL}"
+
+
+      - name: Wait Jenkins CI BE
+        id: wait
+        run: |
+          JENKINS_URL="http://18.208.165.173:8080"
+          JOB_NAME="ASM2-Pipeline"
+          JENKINS_USER="root"
+          JENKINS_API_TOKEN="asm2"
+          USER="${JENKINS_USER}"
+          API_TOKEN="${JENKINS_API_TOKEN}"
           BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
           STATUS="IN_PROGRESS"
 
