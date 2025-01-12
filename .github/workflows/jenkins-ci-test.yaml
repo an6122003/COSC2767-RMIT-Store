@@ -16,15 +16,19 @@ jobs:
       - name: Trigger Jenkins Job
         id: trigger
         run: |
-          # Trigger Jenkins job
+          # Define variables
           JOB_NAME="ASM2-Pipeline"
-          JENKINS_URL="http://18.208.165.173:8080/"
+          JENKINS_URL="http://18.208.165.173:8080"
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
 
-          # Trigger the Jenkins job and get queue URL
-          QUEUE_URL=$(curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
-            --user "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
+          # Get Jenkins Crumb
+          CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
+
+          # Trigger Jenkins job and get queue URL
+          QUEUE_URL=$(curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/build" \
+            --user "${USER}:${API_TOKEN}" \
+            -H "Jenkins-Crumb:${CRUMB}" \
             -H "Content-Type: application/json" \
             --data-urlencode "pr_number=${{ github.event.pull_request.number }}" \
             --data-urlencode "pr_branch=${{ github.head_ref }}" \
@@ -32,19 +36,18 @@ jobs:
 
           echo "QUEUE_URL=${QUEUE_URL}"
 
-
       - name: Wait Jenkins CI BE
         id: wait
         run: |
+          # Define variables
           JENKINS_URL="http://18.208.165.173:8080"
           JOB_NAME="ASM2-Pipeline"
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
-          USER="${JENKINS_USER}"
-          API_TOKEN="${JENKINS_API_TOKEN}"
           BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
-          STATUS="IN_PROGRESS"
 
+          # Monitor Jenkins job status
+          STATUS="IN_PROGRESS"
           while [ "$STATUS" != "SUCCESS" ] && [ "$STATUS" != "FAILURE" ]; do
             echo "Checking Jenkins job status..."
             sleep 10
