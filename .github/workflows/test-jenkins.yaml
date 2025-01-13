@@ -28,7 +28,7 @@ jobs:
             -H "Jenkins-Crumb:${CRUMB}" \
             --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:latest"
 
-      # Step 5: Wait for Jenkins Job to Complete
+      # Step 5: Wait for Jenkins Job to Complete and Show Logs
       - name: Wait for Jenkins Job
         id: wait_jenkins
         run: |
@@ -37,6 +37,7 @@ jobs:
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
           BUILD_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/api/json"
+          CONSOLE_OUTPUT_URL="$JENKINS_URL/job/$JOB_NAME/lastBuild/consoleText"
           STATUS="IN_PROGRESS"
 
           while [ "$STATUS" != "SUCCESS" ] && [ "$STATUS" != "FAILURE" ]; do
@@ -48,7 +49,10 @@ jobs:
 
           if [ "$STATUS" == "SUCCESS" ]; then
             echo "Jenkins job completed successfully!"
+            echo "Fetching Jenkins console output for details..."
+            curl -s --user $USER:$API_TOKEN $CONSOLE_OUTPUT_URL
           else
-            echo "Jenkins job failed. Exiting with error."
+            echo "Jenkins job failed. Fetching Jenkins console output for error details..."
+            curl -s --user $USER:$API_TOKEN $CONSOLE_OUTPUT_URL
             exit 1
           fi
