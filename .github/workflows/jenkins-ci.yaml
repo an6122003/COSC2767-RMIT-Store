@@ -1,12 +1,6 @@
 name: Jenkins CI BE
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'server/**'
-  workflow_dispatch:
   repository_dispatch:
     types:
       - trigger-jenkins-ci

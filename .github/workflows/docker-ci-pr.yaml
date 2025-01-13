@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'server/**'
 
 jobs:
   build-and-push:
@@ -43,6 +45,7 @@ jobs:
 
       # Trigger another workflow using workflow_dispatch
       - name: Trigger another workflow
+        if: ${{ success() }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
