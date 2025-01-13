@@ -38,7 +38,7 @@ jobs:
             --tag ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }} \
             ./server
 
-      # Push the Docker image with both tags
+      # Push the Docker image
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}
@@ -63,7 +63,7 @@ jobs:
             -H "Jenkins-Crumb:${CRUMB}" \
             --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
 
-      # Step 5: Wait for Jenkins Job to Complete
+      # Wait for Jenkins Job to Complete
       - name: Wait for Jenkins Job
         id: wait_jenkins
         run: |
@@ -88,14 +88,10 @@ jobs:
             exit 1
           fi
 
-      # Trigger docker-final-ci Workflow
-      - name: Trigger Docker CI Final
+      # Tag and push the latest Docker image
+      - name: Tag and Push Latest
         if: ${{ steps.wait_jenkins.outcome == 'SUCCESS' }}
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-docker-final-ci
-          client-payload: |
-            {
-              "image_tag": "${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
-            }
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}
+          docker tag ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }} ${{ secrets.DOCKER_USERNAME }}/mern-server:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/mern-server:latest
