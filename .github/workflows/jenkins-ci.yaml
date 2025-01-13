@@ -58,10 +58,25 @@ jobs:
           CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
 
           # Trigger Jenkins job and get queue URL
-          curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/build" \
+          # curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
+          #   --user "${USER}:${API_TOKEN}" \
+          #   -H "Jenkins-Crumb:${CRUMB}" \
+          #   --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
+
+          # Trigger Jenkins job and get HTTP response code
+          HTTP_RESPONSE=$(curl -o /dev/null -s -w "%{http_code}" -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
             --user "${USER}:${API_TOKEN}" \
             -H "Jenkins-Crumb:${CRUMB}" \
-            --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
+            --data-urlencode "image_tag=${IMAGE_TAG}" \
+            --data-urlencode "pr_number=${PR_NUMBER}")
+
+          # Check if the response is in the 400-405 range
+          if [[ "$HTTP_RESPONSE" -ge 400 && "$HTTP_RESPONSE" -le 405 ]]; then
+            echo "Failed to trigger Jenkins job. HTTP response code: $HTTP_RESPONSE"
+            exit 1
+          fi  
+          
+          echo "Successfully triggered Jenkins job. HTTP response code: $HTTP_RESPONSE"
 
       # Wait for Jenkins Job to Complete
       - name: Wait for Jenkins Job
