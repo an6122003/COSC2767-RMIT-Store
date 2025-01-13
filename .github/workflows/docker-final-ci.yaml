@@ -4,13 +4,11 @@ on:
   pull_request:
       branches:
         - main
-  repository_dispatch:
-    types:
-      - trigger-docker-final-ci
+  workflow_call: {}
 
 jobs:
   build-and-push:
-    if: ${{ github.event_name == 'repository_dispatch' || github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'workflow_call' }}
     runs-on: ubuntu-latest
 
     steps:
