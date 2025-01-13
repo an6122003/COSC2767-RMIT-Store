@@ -35,7 +35,7 @@ jobs:
             -H "Content-Type: application/json" \
             --data-urlencode "pr_number=${{ github.event.pull_request.number }}" \
             --data-urlencode "pr_branch=${{ github.head_ref }}" \
-            --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}" \
+            --data-urlencode "image_tag=${{ github.event.client_payload.image_tag }}" \
             --write-out "%{redirect_url}"
 
       # Step 5: Wait for Jenkins Job to Complete
@@ -62,3 +62,16 @@ jobs:
             echo "Jenkins job failed. Exiting with error."
             exit 1
           fi
+
+       # Trigger docker-final-ci Workflow
+      - name: Trigger Docker CI Final
+        if: ${{ steps.wait_jenkins.outcome == 'SUCCESS' }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-docker-final-ci
+          client-payload: |
+            {
+              "image_tag": "${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
+            }
+          

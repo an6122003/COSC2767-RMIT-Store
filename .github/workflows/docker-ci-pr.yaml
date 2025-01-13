@@ -40,7 +40,6 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/mern-server:latest
 
       # Trigger another workflow using workflow_dispatch
       - name: Trigger another workflow

@@ -1,32 +1,23 @@
 name: Docker CI Final
 
 on:
-  push:
-    branches:
-      - main
+  repository_dispatch:
+    types:
+      - trigger-docker-final-ci
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Build the Docker image
-      - name: Build Docker image
+      - name: Tag and Push Latest
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/mern-server:latest ./server
-
-      # Push the Docker image to Docker Hub
-      - name: Push Docker image
-        run: |
+          docker pull ${{ github.event.client_payload.image_tag }}
+          docker tag ${{ github.event.client_payload.image_tag }} ${{ secrets.DOCKER_USERNAME }}/mern-server:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/mern-server:latest
