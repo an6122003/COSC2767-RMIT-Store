@@ -16,6 +16,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Log received payload
+        run: |
+          echo "Received image_tag: ${{ github.event.client_payload.image_tag }}"
+          echo "Received pr_number: ${{ github.event.client_payload.pr_number }}"
+
       - name: Trigger Jenkins Job
         id: trigger
         run: |

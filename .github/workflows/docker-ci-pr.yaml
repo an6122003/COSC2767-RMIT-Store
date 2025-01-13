@@ -52,3 +52,9 @@ jobs:
               "image_tag": "${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}",
               "pr_number": "${{ github.event.pull_request.number }}"
             }
+
+      - name: Log client payload
+        run: |
+          echo "Payload sent:"
+          echo "Image Tag: ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
+          echo "PR Number: ${{ github.event.pull_request.number }}"
