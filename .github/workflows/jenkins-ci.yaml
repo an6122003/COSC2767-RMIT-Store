@@ -67,7 +67,7 @@ jobs:
           HTTP_RESPONSE=$(curl -o /dev/null -s -w "%{http_code}" -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
             --user "${USER}:${API_TOKEN}" \
             -H "Jenkins-Crumb:${CRUMB}" \
-            --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}"
+            --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}")
 
           # Check if the response is in the 400-405 range
           if [[ "$HTTP_RESPONSE" -ge 400 && "$HTTP_RESPONSE" -le 405 ]]; then
