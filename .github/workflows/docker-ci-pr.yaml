@@ -34,7 +34,6 @@ jobs:
         run: |
           docker build \
             --tag ${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }} \
-            --tag ${{ secrets.DOCKER_USERNAME }}/mern-server:latest \
             ./server
 
       # Push the Docker image with both tags
@@ -48,10 +47,9 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-workflow
+          event-type: trigger-jenkins-ci
           client-payload: |
             {
               "image_tag": "${{ secrets.DOCKER_USERNAME }}/mern-server:${{ env.sha_short }}",
-              "latest_tag": "${{ secrets.DOCKER_USERNAME }}/mern-server:latest",
               "pr_number": "${{ github.event.pull_request.number }}"
             }

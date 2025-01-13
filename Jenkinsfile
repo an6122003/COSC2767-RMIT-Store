@@ -6,6 +6,10 @@ pipeline {
         INSTANCE_IP = ""
     }
 
+    parameters {
+        string(name: 'image_tag', defaultValue: 'an6122003/mern-server:latest', description: 'Docker image tag to deploy')
+    }
+
     stages {
         stage('Trigger CloudFormation') {
             steps {
@@ -125,7 +129,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
-                    sudo docker pull an6122003/mern-server:latest
+                    sudo docker pull ${image_tag}
                     echo "Image pulled successfully"
 
                     # Stop and remove any existing container named mern-server
@@ -136,14 +140,14 @@ pipeline {
                     sudo docker run --rm \
                         -e NODE_ENV=test \
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
-                        an6122003/mern-server:latest \
+                        ${image_tag} \
                         npm run seed:db admin@rmit.edu.vn mypassword
 
                     # Run the application container
                     sudo docker run -d --name mern-server -p 3000:3000 \
                         -e NODE_ENV=test \
                         -e MONGO_URI=mongodb://localhost:27017/rmit_ecommerce \
-                        an6122003/mern-server:latest
+                        ${image_tag}
 
                     echo "Deploy and Seed MongoDB Successfully"
                     "
