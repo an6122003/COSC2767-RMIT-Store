@@ -24,8 +24,8 @@ jobs:
           JENKINS_URL="${{ secrets.JENKINS_URL }}"
           USER="${{ secrets.JENKINS_USER }}"
           API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
-          echo "image_tag=${{ github.event.client_payload.image_tag }}"
-          echo JENKINS_URL=$JENKINS_URL
+          echo "Image Tag: ${{ github.event.client_payload.image_tag }}"
+          echo "PR Number: ${{ github.event.client_payload.pr_number }}"
 
           # Get Jenkins Crumb
           CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
