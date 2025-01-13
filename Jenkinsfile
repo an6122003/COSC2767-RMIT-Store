@@ -129,6 +129,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-vockey', keyFileVariable: 'SSH_KEY')]) {
                     sh """
                     ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@${INSTANCE_IP} "
+                    echo 'Pulling the Docker image: ${image_tag}'
                     sudo docker pull ${image_tag}
                     echo "Image pulled successfully"
 
