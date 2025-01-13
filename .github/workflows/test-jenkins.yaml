@@ -23,7 +23,7 @@ jobs:
           CRUMB=$(curl -s --user "${USER}:${API_TOKEN}" "${JENKINS_URL}/crumbIssuer/api/json" | jq -r '.crumb')
 
           # Trigger Jenkins job 
-          curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/build" \
+          curl -s -X POST "${JENKINS_URL}/job/${JOB_NAME}/buildWithParameters" \
             --user "${USER}:${API_TOKEN}" \
             -H "Jenkins-Crumb:${CRUMB}" \
             --data-urlencode "image_tag=${{ secrets.DOCKER_USERNAME }}/mern-server:latest"
