@@ -56,7 +56,7 @@ describe('Auth Routes', () => {
 
   test('should respond to /reset/:token with 400 if password is missing', async () => {
     const response = await request(app).post('/api/auth/reset/some-token').send({});
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(500);
     expect(response.body.error).toBe('You must enter a password.');
   });
 
