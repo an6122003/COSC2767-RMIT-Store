@@ -40,6 +40,7 @@ pipeline {
         stage('Trigger CloudFormation') {
             steps {
                 script {
+                    echo "Creating AWS Stack..."
                     sh """
                     aws cloudformation deploy \
                         --stack-name ${STACK_NAME} \
@@ -62,6 +63,7 @@ pipeline {
         stage('Retrieve Instance IP') {
             steps {
                 script {
+                    echo "Retrieving EC2 Instance IP..."
                     INSTANCE_IP = sh(
                         script: """
                         aws cloudformation describe-stacks \
