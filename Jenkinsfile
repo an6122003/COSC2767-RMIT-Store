@@ -15,17 +15,27 @@ pipeline {
             steps {
                 script {
                     echo "Checking for existing stack and ensuring deletion..."
-                    sh """
-                    stack_status=\$(aws cloudformation describe-stacks --stack-name '${STACK_NAME}' --query \"Stacks[0].StackStatus\" --output text || echo \"STACK_DOES_NOT_EXIST\")
-                    if [ \"$stack_status\" != \"STACK_DOES_NOT_EXIST\" ]; then
-                        aws cloudformation delete-stack --stack-name ${STACK_NAME}
-                        echo \"Waiting for stack to delete...\"
-                        aws cloudformation wait stack-delete-complete --stack-name ${STACK_NAME}
-                    fi
-                    """
+                    def stackStatus = sh(
+                        script: """
+                            aws cloudformation describe-stacks --stack-name '${STACK_NAME}' --query "Stacks[0].StackStatus" --output text || echo "STACK_DOES_NOT_EXIST"
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    if (stackStatus != "STACK_DOES_NOT_EXIST") {
+                        echo "Stack exists with status: ${stackStatus}. Deleting stack..."
+                        sh """
+                            aws cloudformation delete-stack --stack-name ${STACK_NAME}
+                            echo "Waiting for stack to delete..."
+                            aws cloudformation wait stack-delete-complete --stack-name ${STACK_NAME}
+                        """
+                    } else {
+                        echo "No existing stack found. Continue with the pipeline...."
+                    }
                 }
             }
         }
+
 
         stage('Trigger CloudFormation') {
             steps {
