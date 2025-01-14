@@ -14,8 +14,8 @@ pipeline {
         stage('Ensure Stack is Deleted Before Start') {
             steps {
                 script {
-                    echo "Checking for existing stack and ensuring deletion..."
                     sh """
+                    echo "Checking for existing stack and ensuring deletion..."
                     stack_status=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].StackStatus" --output text || echo "STACK_DOES_NOT_EXIST")
                     if [ "$stack_status" != "STACK_DOES_NOT_EXIST" ]; then
                         aws cloudformation delete-stack --stack-name ${STACK_NAME}
@@ -204,8 +204,8 @@ pipeline {
     post {
         always {
             script {
-                echo "Cleaning up. Deleting AWS stack..."
                 sh """
+                echo "Cleaning up. Deleting AWS stack..."
                 aws cloudformation delete-stack --stack-name ${STACK_NAME}
                 aws cloudformation wait stack-delete-complete --stack-name ${STACK_NAME}
                 """
