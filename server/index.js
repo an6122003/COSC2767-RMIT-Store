@@ -58,3 +58,6 @@ app.get('/healthcheck', (req, res) => {
 
 // Initialize WebSocket server
 socket(server);
+
+// Export app and server for testing
+module.exports = { app, server };

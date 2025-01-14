@@ -1,0 +1,78 @@
+name: Unit and Integration Test CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  server-tests:
+    name: Server Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Adjust Node.js version as per your requirement
+
+      # Step 3: Install server dependencies
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm install
+          npm install --save-dev jest supertest
+
+      # Step 4: Run server tests if "test" script exists
+      - name: Run server tests
+        run: |
+          cd server
+          if npm run | grep -q "test"; then
+            echo "Running server tests..."
+            npm run test
+          else
+            echo "No test script found. Skipping server tests."
+          fi
+        env:
+          NODE_ENV: test
+
+  client-tests:
+    name: Client Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Adjust Node.js version as per your requirement
+
+      # Step 3: Install client dependencies
+      - name: Install client dependencies
+        run: |
+          cd client
+          npm install
+          npm install --save-dev jest supertest
+
+      # Step 4: Run client tests if "test" script exists
+      - name: Run client tests
+        run: |
+          cd client
+          if npm run | grep -q "test"; then
+            echo "Running client tests..."
+            npm run test
+          else
+            echo "No test script found. Skipping client tests."
+          fi
+        env:
+          NODE_ENV: test
